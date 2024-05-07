@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "FE_ThesisApp",
+    "slug": "FE_ThesisApp",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "FE_ThesisApp"
+}
