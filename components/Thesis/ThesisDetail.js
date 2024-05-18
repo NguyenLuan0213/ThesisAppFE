@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import API, { authApi, endpoints } from '../../configs/API';
 import ThesisDetailStyle from './ThesisDetailStyle';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -12,7 +12,20 @@ const ThesisDetail = ({ route, navigation }) => {
     const onThesisDelete = route?.params?.onThesisDelete;
     const [thesis_detail, setThesis_Detail] = useState(null);
 
+    const [refreshing, setRefreshing] = useState(false);
+    const [parties, setParties] = useState([]);
+
     useEffect(() => {
+        loadThesisDetail();
+    }, [thesisId]);
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        setParties([]);
+        loadThesisDetail();
+        setRefreshing(false);
+    }, []);
+
         const loadThesisDetail = async () => {
             setLoading(true);
             try {
@@ -25,9 +38,6 @@ const ThesisDetail = ({ route, navigation }) => {
                 setLoading(false);
             }
         }
-
-        loadThesisDetail();
-    }, [thesisId]);
 
     const getStatusDescription = (status) => {
         switch (status) {
@@ -81,7 +91,7 @@ const ThesisDetail = ({ route, navigation }) => {
 
     return (
         <View style={ThesisDetailStyle.container}>
-            <ScrollView>
+            <ScrollView  refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
                 {loading ? (
                     <Text>Loading...</Text>
                 ) : (

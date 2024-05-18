@@ -10,6 +10,7 @@ const LogoutButton = () => {
 
     const logout = async () => {
         await AsyncStorage.removeItem('token-access');
+        await AsyncStorage.removeItem('@user');
         dispatch({
             "type": 'LOGOUT'
         });

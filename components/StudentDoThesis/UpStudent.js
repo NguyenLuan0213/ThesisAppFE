@@ -25,6 +25,7 @@ const UpStudent = ({ route, navigation }) => {
         getStudent();
     }, [studentId]);
 
+
     const updateStudent = async () => {
         Alert.alert(
             "Xác nhận",
@@ -40,6 +41,7 @@ const UpStudent = ({ route, navigation }) => {
                         const access_token = await AsyncStorage.getItem('token-access');
                         console.log(access_token);
                         setLoading(true);
+                        console.log(studentData);
                         try {
                             let res = await authApi(access_token).put(endpoints['student_update'](studentData.id), studentData);
                             alert("Chỉnh sửa thành công");
@@ -47,7 +49,7 @@ const UpStudent = ({ route, navigation }) => {
                         } catch (error) {
                             console.log(error.response);
                             if (error.response) {
-                                alert("Chỉnh sửa không thành công");
+                                alert("Chỉnh sửa không thành công, lỗi "+ error.response.data.detail);
                             }
                         } finally {
                             setLoading(false);
@@ -75,20 +77,6 @@ const UpStudent = ({ route, navigation }) => {
                 placeholder={studentData?.thesis_defense_committee?.toString()}
                 value={studentData?.thesis_defense_committee?.toString()}
                 onChangeText={(value) => setStudentData({ ...studentData, thesis_defense_committee: value })}
-            />
-            <Text style={styles.text_item}>Trạng thái:</Text>
-            <TextInput
-                style={styles.input}
-                placeholder={studentData?.status}
-                value={studentData?.status}
-                onChangeText={(value) => setStudentData({ ...studentData, status: value })}
-            />
-            <Text style={styles.text_item}>Hoạt động:</Text>
-            <TextInput
-                style={styles.input}
-                placeholder={studentData?.count_score?.toString()}
-                value={studentData?.count_score?.toString()}
-                onChangeText={(value) => setStudentData({ ...studentData, count_score: value })}
             />
             <Text style={styles.text_item}>Mã Sinh viên:</Text>
             <TextInput

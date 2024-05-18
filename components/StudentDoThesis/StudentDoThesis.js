@@ -1,5 +1,5 @@
-import { Text, View, ScrollView, TouchableOpacity } from "react-native";
-import React from 'react';
+import { Text, View, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
+import React, { useCallback } from 'react';
 import API, { endpoints } from "../../configs/API";
 import { useEffect, useState } from "react";
 import { TextInput } from "react-native-gesture-handler";
@@ -9,24 +9,35 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const StudentDoThesis = ({ navigation }) => {
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [parties, setParties] = useState([]);
+
+    const LoadStudents = async () => {
+        setLoading(true);
+        const access_token = await AsyncStorage.getItem('token-access');
+        console.log(access_token);
+        try {
+            let res = await API.get(endpoints['students']);
+            setStudents(res.data);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     useEffect(() => {
-        const LoadStudents = async () => {
-            setLoading(true);
-            const access_token = await AsyncStorage.getItem('token-access');
-            console.log(access_token);
-            try {
-                let res = await API.get(endpoints['students']);
-                setStudents(res.data);
-            } catch (error) {
-                console.log(error);
-            } finally {
-                setLoading(false);
-            }
-        }
-
         LoadStudents();
+    }, [refreshing]);
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        setParties([]);
+        LoadStudents();
+        setRefreshing(false);
+
     }, []);
+
 
 
     const AddStudent = () => {
@@ -39,7 +50,7 @@ const StudentDoThesis = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <ScrollView>
+            <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
                 <Text style={styles.title}>StudentDoThesis</Text>
                 <View style={styles.button}>
                     <TouchableOpacity onPress={AddStudent}>
@@ -78,6 +89,7 @@ const StudentDoThesis = ({ navigation }) => {
                                 <Text style={styles.studentInfoText}>Ngày tạo bài khóa luận: {formattedDate}</Text>
                                 <Text style={styles.studentInfoText}>Trạng thái bài khóa luận: {status}</Text>
                                 <Text style={styles.studentInfoText}>Tổng điểm: {score}</Text>
+                                <Text style={styles.studentInfoText}>Kết quả: {student.results}</Text>
                             </TouchableOpacity>
                         </View>
                     );

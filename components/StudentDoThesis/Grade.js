@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, RefreshControl } from 'react-native';
 import API, { authApi, endpoints } from '../../configs/API';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
 import styles from './GraceStyles';
+import { useCallback } from 'react';
 
 
 const Grade = ({ route, navigation }) => {
@@ -15,23 +16,45 @@ const Grade = ({ route, navigation }) => {
     const [specificCriteria, setSpecificCriteria] = useState([]);
     const [specific_criteria_id, setSpecificCriteriaId] = useState(null);
 
-    console.log(teacherId);
+    const [specificCriteriaData, setSpecificCriteriaData] = useState([]);
+
+    const [refreshing, setRefreshing] = useState(false);
+    const [parties, setParties] = useState([]);
+
 
     useEffect(() => {
-        const getStudent = async () => {
-            setLoading(true);
-            try {
-                let res = await API.get(endpoints['student_id'](studentId));
-                setStudentData(res.data);
-            } catch (error) {
-                console.log(error);
-            } finally {
-                setLoading(false);
-            }
-        }
+        setSpecificCriteria(specificCriteriaData);
+    }, [specificCriteria]);
 
+    useEffect(() => {
         getStudent();
     }, [studentId]);
+
+    useEffect(() => {
+        getGradeSpectific();
+    }, [studentId, teacherId]);
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        setParties([]);
+        getStudent();
+        getGradeSpectific();
+        setRefreshing(false);
+    }, []);
+
+    const getStudent = async () => {
+        setLoading(true);
+        try {
+            let res = await API.get(endpoints['student_id'](studentId));
+            setStudentData(res.data);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    console.log(specific_criteria_id);
 
 
     const addGrade = async () => {
@@ -44,9 +67,9 @@ const Grade = ({ route, navigation }) => {
                 "student_thesis": studentId,
                 "teacher_defense_commit": teacherId
             });
-
+            onRefresh();
             alert("Chấm điểm thành công");
-            navigation.navigate('StudentDetail', { studentId: studentId });
+            // navigation.navigate('StudentDetail', { studentId: studentId });
         } catch (error) {
             console.log(error);
             if (error.response && error.response.status === 403) {
@@ -61,34 +84,32 @@ const Grade = ({ route, navigation }) => {
         }
     }
 
-    useEffect(() => {
-        const getGradeSpectific = async () => {
-            try {
-                setLoading(true);
-                let res = await API.get(endpoints['grade_spectific'](studentId, teacherId));
-                console.log(res.data);
-                if (!res.data || res.data.length === 0) {
-                    alert('Đã hết mục tiêu chấm điểm');
-                    navigation.navigate('StudentDetail', { studentId: studentId });
-                    return;
-                }
-                setSpecificCriteria(res.data);
-            } catch (error) {
-                console.log(error);
-                if (error.response) {
-                    alert(error.response.data.detail);
-                }
+    const getGradeSpectific = async () => {
+        try {
+            setLoading(true);
+            let res = await API.get(endpoints['grade_spectific'](studentId, teacherId));
+            console.log(res.data);
+            if (!res.data || res.data.length === 0) {
+                alert('Đã hết mục tiêu chấm điểm');
                 navigation.navigate('StudentDetail', { studentId: studentId });
-            } finally {
-                setLoading(false);
+                return;
             }
+            setSpecificCriteriaData(res.data);
+            setSpecificCriteriaId(res.data[0].id); // Set the initial value here
+        } catch (error) {
+            console.log(error);
+            if (error.response) {
+                alert(error.response.data.detail);
+            }
+            navigation.navigate('StudentDetail', { studentId: studentId });
+        } finally {
+            setLoading(false);
         }
+    }
 
-        getGradeSpectific();
-    }, []);
 
     return (
-        <View style={styles.container}>
+        <View style={styles.container} >
             {loading ? (
                 <Text>Loading...</Text>
             ) : (

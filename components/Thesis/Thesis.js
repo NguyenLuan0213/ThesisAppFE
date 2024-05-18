@@ -1,5 +1,5 @@
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Button } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Button, RefreshControl } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
 import API, { endpoints } from "../../configs/API";
 import ThesisStyle from "./ThesisStyle";
 import { Linking, StyleSheet } from 'react-native';
@@ -9,8 +9,20 @@ const Thesis = ({ navigation }) => {
     const [thesisData, setThesisData] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const [refreshing, setRefreshing] = useState(false);
+    const [parties, setParties] = useState([]);
+
     useEffect(() => {
-        setLoading(true);
+        LoadThesis();
+    }, [refreshing]);
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        setParties([]);
+        LoadThesis();
+        setRefreshing(false);
+
+    }, []);
 
         const LoadThesis = async () => {
             try {
@@ -23,8 +35,6 @@ const Thesis = ({ navigation }) => {
                 setLoading(false);
             }
         }
-        LoadThesis();
-    }, []);
 
     const refreshThesisData = async () => {
         try {
@@ -46,7 +56,7 @@ const Thesis = ({ navigation }) => {
 
     return (
         <View style={ThesisStyle.container}>
-            <ScrollView>
+            <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
                 {thesisData === null ? <ActivityIndicator /> : <>
                     {thesisData.map((c) => (
                         <TouchableOpacity key={c.id} onPress={() => gotoThesisDetail(c.id)} style={ThesisStyle.container_list_item}>

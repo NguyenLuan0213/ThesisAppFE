@@ -18,6 +18,7 @@ export default styles = StyleSheet.create({
         marginBottom: 10,
         paddingLeft: 10,
         borderRadius: 5,
+        backgroundColor: '#FFFFFF',
     },
     picker: {
         height: 50,
@@ -25,6 +26,7 @@ export default styles = StyleSheet.create({
         borderWidth: 1,
         marginBottom: 10,
         borderRadius: 5,
+        backgroundColor: '#FFFFFF',
     },
     submitButton: {
         backgroundColor: '#007BFF',

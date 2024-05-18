@@ -65,4 +65,33 @@ export default styles = StyleSheet.create({
     container_btn: {
         backgroundColor: '#EEEEEE',
     },
+    menuTrigger: {
+        backgroundColor: '#007BFF',
+        padding: 5,
+        borderRadius: 5,
+        marginVertical: 5,
+    },
+    menuTriggerText: {
+        color: '#FFF',
+        textAlign: 'center',
+        fontSize: 17,
+    },
+    menuOptions: {
+        zIndex: 9999,
+        backgroundColor: '#f8f8f8',
+        padding: 10,
+        borderRadius: 5,
+    },
+    menuOption: {
+        padding: 5,
+        borderBottomColor: '#000',
+        borderBottomWidth: 1,
+    },
+    menuOptionText: {
+        fontSize: 17,
+        color: '#000',
+    },
+    container_modal: {
+        padding: 10,
+    },
 });
